@@ -1,8 +1,8 @@
 /* eslint-disable eqeqeq */
 import Cell from "./Cell";
-import React,{Component} from 'react';
+import React, { Component } from "react";
 
-const validate = board => {
+const validate = (board) => {
   let isValid = true;
   for (let i = 0; i < 4; i++) {
     const horizontal = new Set();
@@ -25,85 +25,97 @@ const validate = board => {
   return isValid;
 };
 
+class Board extends Component {
+  state = {
+    board: [
+      [1, 2, 3, 4],
+      [3, 4, 0, 0],
+      [2, 0, 4, 0],
+      [4, 1, 2, 2],
+    ],
+    initial: [
+      [true, true, true, true],
+      [true, true, false, false],
+      [true, false, true, false],
+      [true, false, false, true],
+    ],
+    statusText: "",
+    timer: 0,
+    loading: true,
+  };
 
-
-class Board extends Component{
-  state ={
-    board:[[1,2,3,4],[3,4,0,0],[2,0,4,0],[4,0,0,2]],
-    initial:[[true,true,true,true],[true,true,false,false],[true,false,true,false],[true,false,false,true]],
-    statusText:"",
-    timer:0,
-    loading:true
- };
-
-  componentDidMount( ){
-  this.interval=setInterval(()=>{
-    this.setState({timer:this.state.timer+1})
-
-    },1000);
+  componentDidMount() {
+    this.interval = setInterval(() => {
+      this.setState({ timer: this.state.timer + 1 });
+    }, 1000);
     this.restartBoard();
-    
-}
-componentWillUnmount(){
-  clearInterval(this.interval);
-}
-restartBoard=()=>{
-  //fetch call API
-  this.setState({
-    loading:true
-  })
-  fetch("https://us-central1-skooldio-courses.cloudfunctions.net/react_01/random?fbclid=IwAR2712EIET4ywmPXnNQznsptBj0Cmv9TUv4On7PwgNoDvgJyG0HuGWirCTA")
-  .then(resp =>{
-    return resp.json();
-})
-  .then(jsonResponse =>{
-    console.log(jsonResponse);
+  }
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+  restartBoard = () => {
+    //fetch call API
     this.setState({
-      board:jsonResponse.board,
-      timer:0,
-      initial:jsonResponse.board.map((row)=> row.map((item)=> item!=0)),
-      loading:false
-  })
-})
-
-}
-  submit=() =>{
+      loading: true,
+    });
+    fetch(
+      "https://us-central1-skooldio-courses.cloudfunctions.net/react_01/random?fbclid=IwAR2712EIET4ywmPXnNQznsptBj0Cmv9TUv4On7PwgNoDvgJyG0HuGWirCTA"
+    )
+      .then((resp) => {
+        return resp.json();
+      })
+      .then((jsonResponse) => {
+        console.log(jsonResponse);
+        this.setState({
+          board: jsonResponse.board,
+          timer: 0,
+          initial: jsonResponse.board.map((row) =>
+            row.map((item) => item != 0)
+          ),
+          loading: false,
+        });
+      });
+  };
+  submit = () => {
     const isValid = validate(this.state.board);
-    if(isValid){
+    if (isValid) {
       clearInterval(this.interval);
     }
     this.setState({
-      statusText:isValid ? "board is complete!!" : "board is invalid"
-    })
-  }
-  
-  render( ){
-    return(
+      statusText: isValid ? "board is complete!!" : "board is invalid",
+    });
+  };
+
+  render() {
+    return (
       <div>
         <p className="timer">Elapsed Time : {this.state.timer} seconds</p>
-      <div className="board">
-        {/* ทำloop โดยการ map 2 รอบแบ่งเป็น row and number*/}
-        {
-          !this.state.loading && this.state.board.map((row,i) => 
-            row.map((number,j)=> 
-            <Cell key={`cell -${i}-${j}`} isInitial={this.state.initial[i][j]} 
-            number={number}
-            onChange={newNumber=>{
-              const {board} = this.state;
-              board[i][j]= newNumber;
-              this.setState({
-                board
-              })
-
-            }}
-            />))
-        }
-    
+        <div className="board">
+          {/* ทำloop โดยการ map 2 รอบแบ่งเป็น row and number*/}
+          {!this.state.loading &&
+            this.state.board.map((row, i) =>
+              row.map((number, j) => (
+                <Cell
+                  key={`cell -${i}-${j}`}
+                  isInitial={this.state.initial[i][j]}
+                  number={number}
+                  onChange={(newNumber) => {
+                    const { board } = this.state;
+                    board[i][j] = newNumber;
+                    this.setState({
+                      board,
+                    });
+                  }}
+                />
+              ))
+            )}
+        </div>
+        <button onClick={this.restartBoar} className="restart-button">
+          Restart
+        </button>
+        <button onClick={this.submit}>Submit</button>
+        <p>{this.state.statusText}</p>
       </div>
-      <button onClick={this.restartBoar}className="restart-button">Restart</button>
-      <button onClick={this.submit}>Submit</button>
-      <p>{this.state.statusText}</p>
-    </div>
     );
   }
 }
