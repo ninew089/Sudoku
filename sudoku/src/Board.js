@@ -29,7 +29,7 @@ const validate = board => {
 
 class Board extends Component{
   state ={
-    board:[[1,2,3,4],[3,4,0,0],[2,0,4,0],[4,0,0,2]],
+    board:[[1,2,3,4],[3,4,0,0],[2,0,4,0],[4,0,0,1]],
     initial:[[true,true,true,true],[true,true,false,false],[true,false,true,false],[true,false,false,true]],
     statusText:"",
     timer:0,
